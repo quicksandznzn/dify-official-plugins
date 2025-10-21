@@ -298,6 +298,11 @@ class VolcengineMaaSLargeLanguageModel(LargeLanguageModel):
         elif "json_schema" in model_parameters:
             del model_parameters["json_schema"]
 
+        if "thinking" in model_parameters:
+            thinking_type = model_parameters.get("thinking")
+            if thinking_type == "disabled":
+                model_parameters["reasoning_effort"] = "minimal"
+
         req_params = get_v3_req_params(credentials, model_parameters, stop)
         if tools:
             req_params["tools"] = tools
@@ -582,7 +587,7 @@ class VolcengineMaaSLargeLanguageModel(LargeLanguageModel):
                 )
             )
         elif base_model.lower() in ("doubao-1.5-thinking-vision-pro", "doubao-seed-1.6-flash", "deepseek-v3.1",
-                                    "doubao-seed-1.6-vision"):
+                                    "doubao-seed-1.6-vision", "doubao-seed-1.6-lite",):
             rules.append(
                 ParameterRule(
                     name="thinking",
@@ -590,6 +595,17 @@ class VolcengineMaaSLargeLanguageModel(LargeLanguageModel):
                     default="enabled",
                     label=I18nObject(zh_Hans="深度思考模式", en_US="thinking"),
                     options=["enabled", "disabled"],
+                )
+            )
+
+        if base_model.lower() in ("doubao-seed-1.6-lite", "doubao-seed-1.6"):
+            rules.append(
+                ParameterRule(
+                    name="reasoning_effort",
+                    type=ParameterType.STRING,
+                    default="medium",
+                    label=I18nObject(zh_Hans="推理工作", en_US="reasoning_effort"),
+                    options=["minimal", "low", "medium", "high"],
                 )
             )
 
